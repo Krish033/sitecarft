@@ -1,516 +1,147 @@
 # SiteCraft
 
-> A lightweight, extensible visual site builder for React.
+<p align="center">
+  <a href="https://www.npmjs.com/package/@krish033/sitecraft"><img src="https://img.shields.io/npm/v/@krish033/sitecraft?color=blue&style=flat-square" alt="npm version" /></a>
+  <a href="https://github.com/Krish033/sitecarft/blob/master/packages/sitecraft/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
+  <img src="https://img.shields.io/badge/react-^18.2.0-61dafb?style=flat-square&logo=react" alt="React 18" />
+  <img src="https://img.shields.io/badge/typescript-5.4-3178c6?style=flat-square&logo=typescript" alt="TypeScript" />
+</p>
 
-SiteCraft is a React-based visual page builder designed to make it easy to create responsive web pages through a drag-and-drop editor.
+> A lightweight, extensible visual site builder for React applications.
 
-It provides a structured page document model, visual editing, responsive styling, reusable layout components, and an editor experience inspired by tools such as Elementor — while keeping the underlying architecture simple and developer-friendly.
-
-> **Status: Early Development / Phase 1**
->
-> SiteCraft is currently under active development. APIs, document structures, and features may change.
+**SiteCraft** provides a structured document model, drag-and-drop visual editing, responsive breakpoint styling, and reusable layout components — giving you a clean, developer-friendly page builder inspired by modern visual tools without tying you to any specific backend.
 
 ---
 
 ## ✨ Features
 
-### Visual Editor
-
-- Drag-and-drop page building
-- Visual canvas
-- Component selection
-- Component reordering
-- Layer / navigator tree
-- Property inspector
-- Duplicate components
-- Copy / paste
-- Delete components
-
-### Layout
-
-- Sections
-- Containers
-- Rows
-- Columns
-- Flexbox-based layouts
-- Basic freeform positioning
-
-### Components
-
-Phase 1 includes:
-
-- Heading
-- Text
-- Image
-- Button
-- Divider
-- Spacer
-- Section
-- Container
-- Row
-- Column
-
-More components will be added as the project evolves.
-
-### Responsive Editing
-
-Edit pages for:
-
-- Desktop
-- Tablet
-- Mobile
-
-Styles can be overridden at each breakpoint.
-
-### Styling
-
-SiteCraft supports structured styling for properties such as:
-
-- Typography
-- Colors
-- Spacing
-- Dimensions
-- Borders
-- Border radius
-- Shadows
-- Positioning
-- Layout
-
-### Editor History
-
-- Undo
-- Redo
-- Keyboard shortcuts
-- Document history
-
-### Preview
-
-SiteCraft uses the same page renderer for both editing and previewing, helping ensure that the page users build is the page they preview.
-
-### Assets
-
-Planned/initial asset support includes:
-
-- Image uploads
-- SVG
-- Video
-- Media library
-- Asset selection
-- Image URLs
+- 🎨 **Visual Drag & Drop**: Intuitive canvas powered by `@dnd-kit` for reordering and nesting components.
+- 📐 **Responsive Layouts**: Design for Desktop, Tablet, and Mobile with per-breakpoint style overrides.
+- 🌳 **Layer Tree / Navigator**: Full hierarchy inspection and tree-based node selection.
+- ⚙️ **Property Inspector**: Granular controls for typography, spacing, flexbox, borders, shadows, and animations.
+- 🔄 **Undo / Redo History**: Full state history with keyboard shortcuts (`Cmd/Ctrl+Z`, `Cmd/Ctrl+Y`).
+- 👁️ **Live Preview Mode**: Seamless toggle between editor and clean live preview.
+- 📄 **JSON Document Model**: Clean, serializable, database-agnostic JSON format.
+- 🚀 **Standalone Renderer**: Fast `<NodeRenderer />` component to display pages on your public site without editor overhead.
 
 ---
 
-## 🏗️ Architecture
+## 📦 Installation
 
-SiteCraft is designed as a reusable React package rather than being tightly coupled to a specific application.
-
-```text
-┌──────────────────────────────┐
-│       React Application      │
-│                              │
-│   ┌──────────────────────┐   │
-│   │       SiteCraft       │   │
-│   │                      │   │
-│   │  Canvas              │   │
-│   │  Inspector           │   │
-│   │  Navigator           │   │
-│   │  Components          │   │
-│   │  Renderer            │   │
-│   │  History             │   │
-│   └──────────────────────┘   │
-│              │               │
-│              ▼               │
-│       Page Document          │
-│                              │
-└──────────────┬───────────────┘
-               │
-               ▼
-          Application API
-               │
-               ▼
-            Database
+```bash
+npm install @krish033/sitecraft
 ```
 
-The builder itself should remain independent from the application's backend and business logic.
+Make sure peer dependencies are installed:
+
+```bash
+npm install react react-dom
+```
+
+---
+
+## 🚀 Quick Start
+
+### Visual Editor
+
+Import the `SiteBuilder` component along with the CSS stylesheet:
+
+```tsx
+import React, { useState } from 'react';
+import { SiteBuilder, type PageDocument, createEmptyDocument } from '@krish033/sitecraft';
+import '@krish033/sitecraft/dist/styles.css';
+
+export function EditorPage() {
+  const [document, setDocument] = useState<PageDocument>(() => createEmptyDocument());
+
+  return (
+    <div style={{ height: '100vh', width: '100vw' }}>
+      <SiteBuilder
+        initialDocument={document}
+        onChange={(updatedDoc) => setDocument(updatedDoc)}
+        onSave={(doc) => {
+          console.log('Saving document:', doc);
+          // Persist to your backend API / database
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### Public Page Rendering
+
+To render saved pages on your public-facing site without any editor UI or overhead, use `<NodeRenderer />`:
+
+```tsx
+import React from 'react';
+import { NodeRenderer, type PageDocument } from '@krish033/sitecraft';
+import '@krish033/sitecraft/dist/styles.css';
+
+export function PublicPage({ doc }: { doc: PageDocument }) {
+  return (
+    <div className="site-wrapper">
+      <NodeRenderer
+        nodeId={doc.root}
+        nodes={doc.nodes}
+        theme={doc.theme}
+        viewport="desktop"
+        mode="preview"
+      />
+    </div>
+  );
+}
+```
 
 ---
 
 ## 📄 Document Model
 
-SiteCraft does not use generated JSX or HTML as its source of truth.
-
-Pages are represented using a structured JSON document.
-
-Example:
+SiteCraft represents pages as a clean, serializable JSON tree:
 
 ```json
 {
   "id": "page_001",
-  "name": "Homepage",
-  "root": "node_001",
+  "name": "Home Page",
+  "root": "node_root",
   "nodes": {
-    "node_001": {
-      "id": "node_001",
+    "node_root": {
+      "id": "node_root",
       "type": "page",
       "props": {},
-      "children": ["node_002"]
+      "children": ["section_1"]
     },
-    "node_002": {
-      "id": "node_002",
+    "section_1": {
+      "id": "section_1",
       "type": "section",
       "props": {},
-      "children": ["node_003"]
-    },
-    "node_003": {
-      "id": "node_003",
-      "type": "heading",
-      "props": {
-        "text": "Welcome to SiteCraft"
+      "styles": {
+        "desktop": { "padding": "40px 20px" }
       },
+      "children": ["heading_1"]
+    },
+    "heading_1": {
+      "id": "heading_1",
+      "type": "heading",
+      "props": { "text": "Welcome to SiteCraft", "level": 1 },
       "children": []
     }
   }
 }
 ```
 
-This approach keeps the document:
-
-- Serializable
-- Database-friendly
-- Versionable
-- Portable
-- Independent from React rendering
-
 ---
 
-## 🧩 Package Usage
+## 🧱 Built-in Components
 
-SiteCraft is designed to be consumed as a React package.
-
-```jsx
-import { SiteCraft } from "sitecraft";
-
-function BuilderPage() {
-  return <SiteCraft />;
-}
-```
-
-A document can be supplied and controlled by the host application:
-
-```jsx
-import { SiteCraft } from "sitecraft";
-
-function BuilderPage({ page }) {
-  return (
-    <SiteCraft
-      value={page}
-      onChange={(document) => {
-        console.log(document);
-      }}
-    />
-  );
-}
-```
-
-The host application remains responsible for persistence.
-
-For example:
-
-```jsx
-<SiteCraft
-  value={page}
-  onChange={setPage}
-  onSave={savePage}
-/>
-```
-
-This allows SiteCraft to work with any backend or persistence layer.
-
----
-
-## 🔌 Backend Integration
-
-SiteCraft is intentionally backend-agnostic.
-
-A consuming application can connect it to:
-
-- REST APIs
-- GraphQL
-- MongoDB
-- PostgreSQL
-- Firebase
-- Other persistence systems
-
-A typical setup might look like:
-
-```text
-SiteCraft
-    │
-    │ PageDocument
-    ▼
-React Application
-    │
-    │ REST API
-    ▼
-Backend
-    │
-    ▼
-MongoDB
-```
-
-SiteCraft itself should not directly depend on MongoDB.
-
----
-
-## 🛠️ Development
-
-Clone the repository:
-
-```bash
-git clone <repository-url>
-cd react-site-builder
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run the development environment:
-
-```bash
-npm start
-```
-
-Build the package:
-
-```bash
-npm run build
-```
-
-Run tests:
-
-```bash
-npm test
-```
-
----
-
-## 📦 Local Development
-
-SiteCraft can be used locally without publishing it to npm.
-
-For example, with:
-
-```text
-project/
-├── react-site-builder/
-└── client/
-```
-
-The `client` application can reference the local package:
-
-```json
-{
-  "dependencies": {
-    "sitecraft": "file:../react-site-builder"
-  }
-}
-```
-
-Then run:
-
-```bash
-cd client
-npm install
-```
-
-The package can then be imported normally:
-
-```jsx
-import { SiteCraft } from "sitecraft";
-```
-
----
-
-## 🧱 Project Structure
-
-The project is organized around the core editor responsibilities:
-
-```text
-src/
-├── builder/
-├── canvas/
-├── components/
-├── inspector/
-├── navigator/
-├── renderer/
-├── history/
-├── assets/
-├── responsive/
-├── state/
-├── styles/
-├── types/
-└── index.ts
-```
-
-### Core areas
-
-| Directory | Responsibility |
+| Category | Components |
 |---|---|
-| `builder` | Main editor orchestration |
-| `canvas` | Visual editing surface |
-| `components` | Site-building components |
-| `inspector` | Component property editing |
-| `navigator` | Layer/tree navigation |
-| `renderer` | Page rendering |
-| `history` | Undo/redo |
-| `assets` | Asset management |
-| `responsive` | Breakpoint handling |
-| `state` | Editor state |
-| `styles` | Style resolution |
-| `types` | Shared TypeScript types |
-
----
-
-## 🎯 Phase 1 Scope
-
-The initial goal is to create a small, reliable visual builder rather than a full Elementor replacement.
-
-### Included
-
-- [x] React-based editor
-- [x] Structured page document
-- [x] Drag-and-drop
-- [x] Basic layout components
-- [x] Basic content components
-- [x] Responsive editing
-- [x] Basic freeform positioning
-- [x] Inspector
-- [x] Navigator
-- [x] Undo/redo
-- [x] Copy/paste
-- [x] Duplicate
-- [x] Preview
-- [x] Basic animations
-- [x] Custom CSS
-- [x] Basic custom HTML
-- [x] Asset integration
-
-### Not currently in scope
-
-- [ ] Collaborative editing
-- [ ] Figma-style infinite canvas
-- [ ] Animation timeline
-- [ ] Arbitrary JavaScript execution
-- [ ] Custom React component marketplace
-- [ ] Plugin marketplace
-- [ ] Advanced design-token management
-- [ ] Large-scale page optimization
-- [ ] AI page generation
-
-The scope may expand after the core editor architecture stabilizes.
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1 — Core Builder
-
-Build the foundation:
-
-- Document model
-- Canvas
-- Components
-- Drag/drop
-- Inspector
-- Navigator
-- Responsive editing
-- History
-- Preview
-- Basic asset support
-
-### Phase 2 — Expanded Editing
-
-Potential additions:
-
-- More components
-- Better freeform controls
-- Advanced responsive controls
-- Global styles
-- Templates
-- Reusable blocks
-- Improved animations
-
-### Phase 3 — Platform Features
-
-Potential future features:
-
-- Custom component registration
-- Plugin architecture
-- Advanced asset management
-- Version history
-- Collaboration
-- Advanced interactions
-- Additional integrations
-
----
-
-## 🤝 Contributing
-
-SiteCraft is currently in early development.
-
-Contributions, ideas, bug reports, and architectural discussions are welcome.
-
-Before submitting a large change, please open an issue to discuss the proposed approach.
-
----
-
-## 👨‍💻 Author
-
-<p align="center">
-  <img src="https://avatars.githubusercontent.com/u/67096785?s=400&u=18fa4e8a6345df8b3ee866127abd0fe6724d1b56&v=4" width="120" height="120" style="border-radius: 50%; max-width: 100%;" alt="Sri Krishna" /><br />
-  <strong>Sri Krishna</strong><br />
-  <sub>Creator & Maintainer of SiteCraft</sub>
-</p>
-
-<p align="center">
-  <a href="https://krish033.online" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/Portfolio-krish033.online-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Portfolio" />
-  </a>
-  <a href="https://github.com/Krish033" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/GitHub-Krish033-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  </a>
-  <a href="https://linkedin.com/in/sri-krishna-642981126" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/LinkedIn-Sri_Krishna-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
-  </a>
-  <a href="https://www.fiverr.com/s/WE4rBzd" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/Fiverr-Hire_Me-1DBF73?style=for-the-badge&logo=fiverr&logoColor=white" alt="Fiverr" />
-  </a>
-</p>
-
-- 🌐 **Portfolio**: [krish033.online](https://krish033.online)
-- 🐙 **GitHub**: [@Krish033](https://github.com/Krish033)
-- 💼 **LinkedIn**: [Sri Krishna](https://linkedin.com/in/sri-krishna-642981126)
-- 🟢 **Fiverr**: [Hire me on Fiverr](https://www.fiverr.com/s/WE4rBzd)
+| **Structure & Layout** | `Section`, `Container`, `Row`, `Column` |
+| **Typography & Content**| `Heading`, `Text`, `Image`, `Button` |
+| **Utilities** | `Divider`, `Spacer`, `Custom HTML` |
 
 ---
 
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE).
-
----
-
-## 🚧 Project Status
-
-SiteCraft is currently a work in progress.
-
-The architecture and APIs are expected to evolve during Phase 1.
-
-The primary goal is to establish a clean, reusable foundation for a React visual site builder before expanding the feature set.
-
----
-
-**SiteCraft** — Build visually. Keep the code clean.
