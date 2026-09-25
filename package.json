@@ -1,7 +1,30 @@
 {
-  "name": "@bcsp/react-site-builder",
+  "name": "@krish033/sitecraft",
   "version": "0.1.0",
-  "description": "A reusable visual site/page builder for React 18 applications",
+  "description": "A lightweight, extensible visual site builder for React.",
+  "keywords": [
+    "react",
+    "react-builder",
+    "page-builder",
+    "site-builder",
+    "visual-editor",
+    "drag-and-drop",
+    "website-builder"
+  ],
+  "author": "Sri Krishna <srikrishna@themajesticpeople.com> (https://krish033.online)",
+  "license": "MIT",
+  "homepage": "https://github.com/Krish033/sitecarft#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Krish033/sitecarft.git",
+    "directory": "packages/sitecraft"
+  },
+  "bugs": {
+    "url": "https://github.com/Krish033/sitecarft/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/types/index.d.ts",
@@ -47,6 +70,5 @@
     "jest": "^29.7.0",
     "@types/jest": "^29.5.0",
     "ts-jest": "^29.1.0"
-  },
-  "license": "UNLICENSED"
-}
+  }
+}
